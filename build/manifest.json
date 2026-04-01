@@ -1,0 +1,49 @@
+{
+  "package": "com.scorel.padel",
+  "name": "Scorel",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "minPlatformVersion": 1000,
+  "icon": "/common/logo.png",
+  "deviceTypeList": [
+    "watch"
+  ],
+  "features": [
+    {
+      "name": "system.router"
+    },
+    {
+      "name": "system.interconnect"
+    },
+    {
+      "name": "system.prompt"
+    }
+  ],
+  "config": {
+    "logLevel": "log",
+    "designWidth": "device-width"
+  },
+  "router": {
+    "entry": "pages/index",
+    "pages": {
+      "pages/index": {
+        "component": "index"
+      },
+      "pages/score": {
+        "component": "score"
+      },
+      "pages/result": {
+        "component": "result"
+      }
+    }
+  },
+  "minAPILevel": 1,
+  "packageInfo": {
+    "toolkit": "2.0.5",
+    "timeStamp": "2026-03-31T16:31:59.768Z",
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64",
+    "component": true
+  }
+}

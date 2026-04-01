@@ -1,0 +1,266 @@
+<template>
+  <div class="page">
+
+    <!-- Winner row -->
+    <div class="winner-row">
+      <text class="trophy">★</text>
+      <text class="winner-name">{{ winner }}</text>
+    </div>
+
+    <!-- Grid: team icon col + one col per set -->
+    <div class="grid">
+
+      <!-- Header row: blank + S1, S2, S3 -->
+      <div class="cell cell-head"></div>
+      <text class="cell cell-head-txt">S1</text>
+      <text class="cell cell-head-txt {{ sets < 2 ? 'hidden' : '' }}">S2</text>
+      <text class="cell cell-head-txt {{ sets < 3 ? 'hidden' : '' }}">S3</text>
+
+      <!-- Team A row -->
+      <div class="cell cell-team">
+        <text class="team-lbl-a">{{ teamA }}</text>
+      </div>
+      <text class="cell {{ s1WinA ? 'num-win-a' : 'num-lose' }}">{{ s1a }}</text>
+      <text class="cell {{ sets < 2 ? 'hidden' : (s2WinA ? 'num-win-a' : 'num-lose') }}">{{ s2a }}</text>
+      <text class="cell {{ sets < 3 ? 'hidden' : (s3WinA ? 'num-win-a' : 'num-lose') }}">{{ s3a }}</text>
+
+      <!-- Team B row -->
+      <div class="cell cell-team">
+        <text class="team-lbl-b">{{ teamB }}</text>
+      </div>
+      <text class="cell {{ s1WinB ? 'num-win-b' : 'num-lose' }}">{{ s1b }}</text>
+      <text class="cell {{ sets < 2 ? 'hidden' : (s2WinB ? 'num-win-b' : 'num-lose') }}">{{ s2b }}</text>
+      <text class="cell {{ sets < 3 ? 'hidden' : (s3WinB ? 'num-win-b' : 'num-lose') }}">{{ s3b }}</text>
+
+    </div>
+
+    <!-- New match button -->
+    <input class="btn-new" type="button" value="New Match" onclick="newMatch" />
+
+    <!-- Share result button -->
+    <input class="btn-share" type="button" value="{{ shareLabel }}" onclick="shareResult" />
+
+  </div>
+</template>
+
+<style>
+  .page {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+  }
+
+  /* Winner row */
+  .winner-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .trophy {
+    font-size: 20px;
+    color: #ffcc00;
+    margin-right: 8px;
+  }
+
+  .winner-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  /* Grid */
+  .grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 200px;
+    margin-bottom: 20px;
+  }
+
+  .cell {
+    width: 50px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cell-head {
+    width: 50px;
+    height: 24px;
+  }
+
+  .cell-head-txt {
+    width: 50px;
+    height: 24px;
+    font-size: 12px;
+    color: #555555;
+    text-align: center;
+  }
+
+  .cell-team {
+    width: 50px;
+    height: 40px;
+    align-items: flex-start;
+    justify-content: center;
+    padding-left: 4px;
+  }
+
+  .team-lbl-a {
+    font-size: 13px;
+    color: #00b4ff;
+    font-weight: bold;
+  }
+
+  .team-lbl-b {
+    font-size: 13px;
+    color: #ff6b00;
+    font-weight: bold;
+  }
+
+  .num-win-a {
+    font-size: 22px;
+    font-weight: bold;
+    color: #00b4ff;
+    text-align: center;
+    width: 50px;
+    height: 40px;
+  }
+
+  .num-win-b {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ff6b00;
+    text-align: center;
+    width: 50px;
+    height: 40px;
+  }
+
+  .num-lose {
+    font-size: 22px;
+    color: #333333;
+    text-align: center;
+    width: 50px;
+    height: 40px;
+  }
+
+  .hidden {
+    color: #000000;
+    width: 50px;
+    height: 40px;
+  }
+
+  /* Button */
+  .btn-new {
+    width: 160px;
+    height: 42px;
+    border-radius: 21px;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+
+  .btn-share {
+    width: 160px;
+    height: 42px;
+    border-radius: 21px;
+    background-color: #001a33;
+    color: #00b4ff;
+    font-size: 15px;
+  }
+</style>
+
+<script>
+  import router from '@system.router'
+  import interconnect from '@system.interconnect'
+  import prompt from '@system.prompt'
+
+  export default {
+    protected: {
+      teamA:      'Team A',
+      teamB:      'Team B',
+      setsA:      0,
+      setsB:      0,
+      winner:     '',
+      setHistory: '[]'
+    },
+
+    private: {
+      sets:   0,
+      s1a: '-', s1b: '-', s1WinA: false, s1WinB: false,
+      s2a: '-', s2b: '-', s2WinA: false, s2WinB: false,
+      s3a: '-', s3b: '-', s3WinA: false, s3WinB: false,
+      shareLabel: 'Send to Phone'
+    },
+
+    onInit() {
+      const history = JSON.parse(this.setHistory || '[]')
+      this.sets = history.length
+
+      if (history[0]) {
+        this.s1a    = String(history[0].a)
+        this.s1b    = String(history[0].b)
+        this.s1WinA = history[0].a > history[0].b
+        this.s1WinB = history[0].b > history[0].a
+      }
+      if (history[1]) {
+        this.s2a    = String(history[1].a)
+        this.s2b    = String(history[1].b)
+        this.s2WinA = history[1].a > history[1].b
+        this.s2WinB = history[1].b > history[1].a
+      }
+      if (history[2]) {
+        this.s3a    = String(history[2].a)
+        this.s3b    = String(history[2].b)
+        this.s3WinA = history[2].a > history[2].b
+        this.s3WinB = history[2].b > history[2].a
+      }
+    },
+
+    shareResult() {
+      const history = JSON.parse(this.setHistory || '[]')
+      const sets = history.map(function(s) {
+        return s.a + '-' + s.b
+      }).join(', ')
+
+      const msg = 'Padel: ' + this.winner + ' won! ' +
+                  this.teamA + ' ' + this.setsA + '-' + this.setsB + ' ' + this.teamB +
+                  ' (' + sets + ')'
+
+      const connect = interconnect.instance()
+
+      connect.getReadyState({
+        success: function(data) {
+          if (data.status === 1) {
+            connect.send({
+              message: msg,
+              success: function() {
+                this.shareLabel = 'Sent!'
+                prompt.showToast({ message: 'Sent to phone!', duration: 2000 })
+              }.bind(this),
+              fail: function() {
+                this.shareLabel = 'Failed'
+                prompt.showToast({ message: 'Send failed', duration: 2000 })
+              }.bind(this)
+            })
+          } else {
+            this.shareLabel = 'No connection'
+            prompt.showToast({ message: 'Phone not connected', duration: 2000 })
+          }
+        }.bind(this),
+        fail: function() {
+          this.shareLabel = 'No connection'
+          prompt.showToast({ message: 'Phone not connected', duration: 2000 })
+        }.bind(this)
+      })
+    },
+
+    newMatch() {
+      router.push({ uri: '/pages/index' })
+    }
+  }
+</script>

@@ -1,0 +1,333 @@
+<template>
+  <div class="page">
+
+    <!-- TOP HALF: Team A -->
+    <div class="half-a" onclick="pointA">
+
+      <!-- Full-width row: ball-p2 | content | ball-p1 -->
+      <div class="half-inner">
+
+        <!-- Left ball: player 1 (mirrored for top team) -->
+        <text class="{{ serving === 'A' && servingPlayer === '1' ? 'ball-vis' : 'ball-hid' }}">●</text>
+
+        <!-- Centre content -->
+        <div class="half-center">
+          <text class="team-lbl-a">{{ teamA }}</text>
+          <text class="score-a">{{ ptA }}</text>
+          <text class="sets-lbl-a">Won: {{ setsA }}</text>
+        </div>
+
+        <!-- Right ball: player 2 (mirrored for top team) -->
+        <text class="{{ serving === 'A' && servingPlayer === '2' ? 'ball-vis' : 'ball-hid' }}">●</text>
+
+      </div>
+    </div>
+
+    <!-- NET BAR: status + games score -->
+    <div class="net-bar">
+      <text class="status">{{ statusMsg }}</text>
+      <text class="games-a">{{ gamesA }}</text>
+      <text class="games-sep">-</text>
+      <text class="games-b">{{ gamesB }}</text>
+    </div>
+
+    <!-- BOTTOM HALF: Team B -->
+    <div class="half-b" onclick="pointB">
+
+      <div class="half-inner">
+
+        <!-- Left ball: player 2 -->
+        <text class="{{ serving === 'B' && servingPlayer === '2' ? 'ball-vis' : 'ball-hid' }}">●</text>
+
+        <!-- Centre content -->
+        <div class="half-center">
+          <text class="sets-lbl-b">Won: {{ setsB }}</text>
+          <text class="score-b">{{ ptB }}</text>
+          <text class="team-lbl-b">{{ teamB }}</text>
+        </div>
+
+        <!-- Right ball: player 1 -->
+        <text class="{{ serving === 'B' && servingPlayer === '1' ? 'ball-vis' : 'ball-hid' }}">●</text>
+
+      </div>
+    </div>
+
+    <!-- UNDO BAR -->
+    <div class="undo-bar">
+      <input class="btn-undo" type="button" value="UNDO" onclick="undoPoint" />
+      <input class="btn-end"  type="button" value="END"  onclick="endMatch"  />
+    </div>
+
+  </div>
+</template>
+
+<style>
+  .page {
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+  }
+
+  /* ── Halves ── */
+  .half-a {
+    width: 100%;
+    height: 210px;
+    background-color: #00101a;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .half-b {
+    width: 100%;
+    height: 210px;
+    background-color: #180800;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Row that spans full width: ball | center | ball */
+  .half-inner {
+    width: 100%;
+    height: 148px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* Centre column */
+  .half-center {
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Ball serve icons ── */
+  .ball-vis {
+    font-size: 16px;
+    color: #ffcc00;
+    width: 18px;
+    text-align: center;
+  }
+
+  .ball-hid {
+    font-size: 16px;
+    color: #000000;
+    width: 18px;
+    text-align: center;
+  }
+
+  /* ── Team labels ── */
+  .team-lbl-a {
+    font-size: 11px;
+    color: #336688;
+    text-align: center;
+    margin-bottom: 2px;
+  }
+
+  .team-lbl-b {
+    font-size: 11px;
+    color: #885522;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  /* ── Big score ── */
+  .score-a {
+    font-size: 64px;
+    font-weight: bold;
+    color: #00b4ff;
+    height: 72px;
+    width: 110px;
+    text-align: center;
+  }
+
+  .score-b {
+    font-size: 64px;
+    font-weight: bold;
+    color: #ff6b00;
+    height: 72px;
+    width: 110px;
+    text-align: center;
+  }
+
+  /* ── Sets won label inside each half ── */
+  .sets-lbl-a {
+    font-size: 11px;
+    color: #336688;
+    text-align: center;
+    height: 14px;
+  }
+
+  .sets-lbl-b {
+    font-size: 11px;
+    color: #885522;
+    text-align: center;
+    height: 14px;
+  }
+
+  /* ── Net bar — now shows games ── */
+  .net-bar {
+    width: 100%;
+    height: 28px;
+    background-color: #0d0d0d;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .status {
+    font-size: 11px;
+    color: #ffcc00;
+    width: 52px;
+    text-align: right;
+    margin-right: 8px;
+  }
+
+  .games-a {
+    font-size: 16px;
+    font-weight: bold;
+    color: #00b4ff;
+    width: 16px;
+    text-align: center;
+  }
+
+  .games-sep {
+    font-size: 14px;
+    color: #333333;
+    width: 10px;
+    text-align: center;
+  }
+
+  .games-b {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff6b00;
+    width: 16px;
+    text-align: center;
+  }
+
+  /* ── Undo bar ── */
+  .undo-bar {
+    width: 100%;
+    height: 36px;
+    background-color: #080300;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-undo {
+    width: 80px;
+    height: 26px;
+    border-radius: 13px;
+    background-color: #1a0d00;
+    color: #ff6b00;
+    font-size: 13px;
+    margin-right: 10px;
+  }
+
+  .btn-end {
+    width: 50px;
+    height: 26px;
+    border-radius: 13px;
+    background-color: #1a0000;
+    color: #ff4444;
+    font-size: 13px;
+  }
+</style>
+
+<script>
+  import router from '@system.router'
+  import {
+    initialState,
+    saveSnapshot,
+    undoPoint,
+    addPoint,
+    buildResultParams
+  } from '../../state/scoreState'
+
+  export default {
+    protected: {
+      teamA:       'Opponents',
+      teamB:       'Us',
+      maxSets:     3,
+      scoringMode: 'golden',
+      firstServer: 'B'
+    },
+
+    private: {
+      // Display strings (bound in template)
+      ptA:           '0',
+      ptB:           '0',
+      statusMsg:     '',
+      gamesA:        0,
+      gamesB:        0,
+      setsA:         0,
+      setsB:         0,
+      serving:       'B',
+      servingPlayer: '1',
+      // Internal game state (not bound in template)
+      _state: null
+    },
+
+    onInit() {
+      this._state = initialState(this.firstServer)
+      this._sync()
+    },
+
+    // Copy logic state into reactive properties so the UI updates
+    _sync() {
+      const s = this._state
+      this.ptA           = s.ptA
+      this.ptB           = s.ptB
+      this.statusMsg     = s.statusMsg
+      this.gamesA        = s.gamesA
+      this.gamesB        = s.gamesB
+      this.setsA         = s.setsA
+      this.setsB         = s.setsB
+      this.serving       = s.serving
+      this.servingPlayer = s.servingPlayer
+    },
+
+    pointA() {
+      saveSnapshot(this._state)
+      const { state, matchWinner } = addPoint(this._state, 'A', this.scoringMode, this.maxSets)
+      this._state = state
+      this._sync()
+      if (matchWinner) this._finish(matchWinner)
+    },
+
+    pointB() {
+      saveSnapshot(this._state)
+      const { state, matchWinner } = addPoint(this._state, 'B', this.scoringMode, this.maxSets)
+      this._state = state
+      this._sync()
+      if (matchWinner) this._finish(matchWinner)
+    },
+
+    undoPoint() {
+      this._state = undoPoint(this._state)
+      this._sync()
+    },
+
+    _finish(winner) {
+      router.push({
+        uri: '/pages/result',
+        params: buildResultParams(this._state, this.teamA, this.teamB, winner)
+      })
+    },
+
+    endMatch() {
+      const winner = this.setsA > this.setsB ? 'A' : (this.setsB > this.setsA ? 'B' : 'A')
+      const params = buildResultParams(this._state, this.teamA, this.teamB, winner)
+      params.winner = this.setsA > this.setsB
+        ? this.teamA
+        : (this.setsB > this.setsA ? this.teamB : 'No winner')
+      router.push({ uri: '/pages/result', params })
+    }
+  }
+</script>
